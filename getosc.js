@@ -69,5 +69,4 @@ udpPort.on('error', (err) => {
   clearTimeout(timeoutHandle);
   process.stdout.write(argv.json ? JSON.stringify({ error: err }) : `Error: ${err}`);
   process.exit(1);
-  npm;
 });
