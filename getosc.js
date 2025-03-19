@@ -43,7 +43,7 @@ udpPort.open();
 
 // Timeout error
 let timeoutHandle = setTimeout(() => {
-  console.error(argv.json ? { error: 'No response timeout' } : 'Error: No response timeout');
+  process.stdout.write(argv.json ? JSON.stringify({ error: 'No response timeout' }) : 'Error: No response timeout');
   udpPort.close();
   process.exit(1);
 }, 5000);
@@ -59,8 +59,7 @@ udpPort.on('ready', () => {
 // Handle incoming OSC messages
 udpPort.on('message', (oscMsg) => {
   clearTimeout(timeoutHandle); // Cancel the timeout
-  console.log(argv.json ? oscMsg : oscMsg.args.join());
-  // Exit after receiving the message
+  process.stdout.write(argv.json ? JSON.stringify(oscMsg) : oscMsg.args.join()); // Exit after receiving the message
   udpPort.close();
   process.exit(0);
 });
@@ -68,7 +67,7 @@ udpPort.on('message', (oscMsg) => {
 // Handle errors
 udpPort.on('error', (err) => {
   clearTimeout(timeoutHandle);
-  console.error(argv.json ? { error: err } : `Error: ${err}`);
+  process.stdout.write(argv.json ? JSON.stringify({ error: err }) : `Error: ${err}`);
   process.exit(1);
   npm;
 });
