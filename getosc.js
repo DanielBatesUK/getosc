@@ -60,11 +60,13 @@ let timeoutHandle = setTimeout(() => {
 }, 5000);
 
 udpPort.on('ready', () => {
-  // Send request to the provided OSC address
-  udpPort.send({
-    address: argv.address,
-    args: [],
-  });
+  setTimeout(() => {
+    // Send request to the provided OSC address
+    udpPort.send({
+      address: argv.address,
+      args: [],
+    });
+  }, 100); // 100ms delay before sending the message
 });
 
 // Handle incoming OSC messages
