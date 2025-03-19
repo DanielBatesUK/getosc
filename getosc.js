@@ -1,9 +1,10 @@
+const fs = require('fs');
 const osc = require('osc');
 const yargs = require('yargs');
 
 // Parse command-line arguments
 const argv = yargs
-  .usage('Usage: $0 [--json] <ip> <port> <address>') // Define usage with required args
+  .usage('Usage: $0 [--json] [--output <filename>] <ip> <port> <address>') // Define usage with optional output file
   .command('$0 <ip> <port> <address>', 'Retrieve OSC values', (yargs) => {
     yargs
       .positional('ip', {
@@ -25,6 +26,11 @@ const argv = yargs
     description: 'Output results as JSON',
     default: false,
   })
+  .option('output', {
+    alias: 'o',
+    type: 'string',
+    description: 'Write output to a file',
+  })
   .demandCommand(3, 'You must provide an IP, Port, and Address.') // Ensure all 3 positional args
   .strict()
   .help()
@@ -43,7 +49,12 @@ udpPort.open();
 
 // Timeout error
 let timeoutHandle = setTimeout(() => {
-  process.stdout.write(argv.json ? JSON.stringify({ error: 'No response timeout' }) : 'Error: No response timeout');
+  const errorMsg = argv.json ? JSON.stringify({ error: 'No response timeout' }) : 'Error: No response timeout';
+  if (argv.output) {
+    fs.writeFileSync(argv.output, errorMsg);
+  } else {
+    process.stdout.write(errorMsg);
+  }
   udpPort.close();
   process.exit(1);
 }, 5000);
@@ -59,7 +70,12 @@ udpPort.on('ready', () => {
 // Handle incoming OSC messages
 udpPort.on('message', (oscMsg) => {
   clearTimeout(timeoutHandle); // Cancel the timeout
-  process.stdout.write(argv.json ? JSON.stringify(oscMsg) : oscMsg.args.join()); // Exit after receiving the message
+  const output = argv.json ? JSON.stringify(oscMsg) : oscMsg.args.join();
+  if (argv.output) {
+    fs.writeFileSync(argv.output, output);
+  } else {
+    process.stdout.write(output);
+  }
   udpPort.close();
   process.exit(0);
 });
@@ -67,6 +83,11 @@ udpPort.on('message', (oscMsg) => {
 // Handle errors
 udpPort.on('error', (err) => {
   clearTimeout(timeoutHandle);
-  process.stdout.write(argv.json ? JSON.stringify({ error: err }) : `Error: ${err}`);
+  const errorMsg = argv.json ? JSON.stringify({ error: err }) : `Error: ${err}`;
+  if (argv.output) {
+    fs.writeFileSync(argv.output, errorMsg);
+  } else {
+    process.stdout.write(errorMsg);
+  }
   process.exit(1);
 });
