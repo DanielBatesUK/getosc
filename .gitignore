@@ -4,6 +4,7 @@
 process.json
 .eslintrc.json
 .prettierrc
+.exe
 
 # Default node .gitignore #########################################################################
 
