@@ -1,6 +1,6 @@
 # GetOSC: OSC Query Script
 
-This script allows you to send a query to an OSC (Open Sound Control) server and retrieve values from a specified OSC address.
+This script allows you to send a query to an OSC (Open Sound Control) server and retrieve values from a specified OSC address. It includes a retry mechanism to improve reliability.
 
 ## Requirements
 
@@ -21,7 +21,7 @@ This script allows you to send a query to an OSC (Open Sound Control) server and
 Run the script with the following command:
 
 ```sh
-node script.js [--json] <ip> <port> <address>
+node script.js [--json] [--output <filename>] <ip> <port> <address>
 ```
 
 ### Positional Arguments
@@ -33,6 +33,7 @@ node script.js [--json] <ip> <port> <address>
 ### Options
 
 - `--json`, `-j`: Output results in JSON format (default: `false`).
+- `--output`, `-o <filename>`: Write output to a specified file.
 
 ### Example
 
@@ -48,18 +49,24 @@ Retrieve the same value but output it as JSON:
 node script.js --json 192.168.1.100 8000 /volume
 ```
 
+Save the response to a file:
+
+```sh
+node script.js --output response.txt 192.168.1.100 8000 /volume
+```
+
 ## How It Works
 
 1. The script initializes an OSC UDP socket to communicate with the specified OSC server.
 2. It sends a query to the specified OSC address.
 3. It waits for a response:
-   - If a response is received, it prints the returned values.
-   - If no response is received within 5 seconds, it prints a timeout error.
+   - If a response is received, it prints or saves the returned values.
+   - If no response is received within 5 seconds, the script retries up to 3 times before printing a timeout error.
 4. The script automatically closes the connection and exits after processing the response.
 
 ## Error Handling
 
-- If the OSC server does not respond within 5 seconds, the script will exit with an error.
+- If the OSC server does not respond within 5 seconds, the script will retry up to 3 times before exiting with an error.
 - If an invalid OSC message is received, the script will log the error and exit.
 - If incorrect arguments are provided, the script will display usage instructions.
 
