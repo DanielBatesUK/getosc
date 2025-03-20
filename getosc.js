@@ -46,7 +46,6 @@ function sendOSCMessage() {
   // Schedule a retry if no response is received
   setTimeout(() => {
     if (retries <= maxRetries) {
-      console.log('retries', retries);
       sendOSCMessage();
     }
   }, retryDelay);
